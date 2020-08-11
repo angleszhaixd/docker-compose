@@ -1,14 +1,16 @@
 version: '3.8'
 services:
     master:
-      image: ${IMAGETAG:-redis:latest}
+      build:
+        context: ./master
+        dockerfile: Dockerfile
+      image: redis-master:latest
       container_name: redis-master
       network_mode: host
       restart: always
       privileged: true
       volumes:
-        - ./conf/master.conf:/var/redis/redis.conf
-        - ./data/master:/var/redis/data
+        - ./data/master:${REDIS_DATA_DIR}
       env_file:
         .env
       environment:
@@ -16,76 +18,56 @@ services:
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
         REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
     #  command: redis-server /var/redis/redis.conf
-      command: [
-          '--port "${REDIS_HOST_PORT}"',
-          '--requirepass "${REDIS_PWD}"',
-          '--masterauth "${REDIS_PWD}"',
-#          '--dir /var/redis/data',
-#          '--logfile /var/redis/data/redis.log',
-          '--appendonly yes',
-        ]
-        
     slave-1:
-      image: ${IMAGETAG:-redis:latest}
-      container_name: redis-slave1
+      build:
+        context: ./slave
+        dockerfile: Dockerfile
+      image: redis-slave:latest
+      container_name: redis-slave-1
       network_mode: host
       restart: always
       privileged: true
       volumes:
-        - ./conf/slave.conf:/var/redis/redis.conf
-        - ./data/slave1:/var/redis/data
+        - ./data/slave1:${REDIS_DATA_DIR}
       env_file:
         .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
-        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
-    #  command: redis-server /var/redis/redis.conf
-      command: [
-          '--port 6380',
-          '--slaveof "${REDIS_HOST_IP}" "${REDIS_HOST_PORT}"',
-          '--requirepass "${REDIS_PWD}"',
-          '--masterauth "${REDIS_PWD}"',
-#          '--dir /var/redis/data',
-#          '--logfile /var/redis/data/redis.log',
-          '--appendonly yes',
-        ]
-        
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:- 6379}
+        SLAVE_IP: 127.0.0.1
+        SLAVE_PORT: 6380
     slave-2:
-      image: ${IMAGETAG:-redis:latest}
-      container_name: redis-slave2
+      build:
+        context: ./slave
+        dockerfile: Dockerfile
+      image: redis-slave:latest
+      container_name: redis-slave-2
       network_mode: host
       restart: always
       privileged: true
       volumes:
-        - ./conf/slave.conf:/var/redis/redis.conf
-        - ./data/slave2:/var/redis/data
+        - ./data/slave2:${REDIS_DATA_DIR}
       env_file:
         .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
-        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
-    #  command: redis-server /var/redis/redis.conf
-      command: [
-          '--port 6381',
-          '--slaveof "${REDIS_HOST_IP}" "${REDIS_HOST_PORT}"',
-          '--requirepass "${REDIS_PWD}"',
-          '--masterauth "${REDIS_PWD}"',
-#          '--dir /var/redis/data',
-#          '--logfile /var/redis/data/redis.log',
-          '--appendonly yes',
-        ]
-    sentinel:
-    #  build: sentinel
-      image: ${IMAGETAG:-redis:latest}
-      container_name: redis-sentinel
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:- 6379}
+        SLAVE_IP: 127.0.0.1
+        SLAVE_PORT: 6381   
+    
+    sentinel-1:
+      build:
+        context: ./sentinel
+        dockerfile: Dockerfile
+      image: redis-sentinel:latest
+      container_name: redis-sentinel-1
       network_mode: host
       restart: always
       privileged: true
       volumes:
-        - ./conf/sentinel.template:/var/redis/sentinel.template
-        - ./data/sentinel:/var/redis/data
+        - ./data/sentinel1:${REDIS_DATA_DIR}
       env_file:
         .env
       depends_on:
@@ -96,11 +78,61 @@ services:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
         REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
-        SENTINEL_QUORUM: ${SENTINEL_QUORUM:-2}
-        SENTINEL_DOWN_AFTER: ${SENTINEL_DOWN_AFTER:-5000}
-        SENTINEL_FAILOVER: ${SENTINEL_FAILOVER:-5100}
-        SENTINEL_DIR_PATH: ${SENTINEL_DIR_PATH:-/var/redis/data}
-    #  command: redis-server /var/redis/redis.conf --sentinel
-      command: bash -c "curl cmd.cat/envsubst.sh && envsubst < /var/redis/sentinel.template > /var/redis/sentinel.conf && cat /var/redis/sentinel.conf && exec redis-server /var/redis/sentinel.conf --sentinel"
+        SENTINEL_PORT: 26379
+        SENTINEL_QUORUM: 2
+        SENTINEL_DOWN_AFTER: 5000
+        SENTINEL_FAILOVER_TIMEOUT: 8000
+        
+    sentinel-2:
+      build:
+        context: ./sentinel
+        dockerfile: Dockerfile
+      image: redis-sentinel:latest
+      container_name: redis-sentinel-2
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./data/sentinel2:${REDIS_DATA_DIR}
+      env_file:
+        .env
+      depends_on:
+        - master
+        - slave-1
+        - slave-2
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+        SENTINEL_PORT: 26380
+        SENTINEL_QUORUM: 2
+        SENTINEL_DOWN_AFTER: 5000
+        SENTINEL_FAILOVER_TIMEOUT: 8000
+        
+    sentinel-3:
+      build:
+        context: ./sentinel
+        dockerfile: Dockerfile
+      image: redis-sentinel:latest
+      container_name: redis-sentinel-3
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./data/sentinel3:${REDIS_DATA_DIR}
+      env_file:
+        .env
+      depends_on:
+        - master
+        - slave-1
+        - slave-2
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+        SENTINEL_PORT: 26381
+        SENTINEL_QUORUM: 2
+        SENTINEL_DOWN_AFTER: 5000
+        SENTINEL_FAILOVER_TIMEOUT: 8000
     
     

@@ -26,7 +26,7 @@ services:
         dockerfile: Dockerfile
 #      image: ${IMAGETAG:-redis:latest}
       image: redis-sentinel:latest
-      container_name: redis-sentine-M
+      container_name: redis-sentinel-M
       network_mode: host
       restart: always
       privileged: true
