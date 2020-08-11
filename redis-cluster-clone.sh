@@ -15,7 +15,7 @@ git version
 echo 'clone docker-compose script files'
 git init redis-tmp && cd redis-tmp
 git config core.sparsecheckout true
-echo '/redis-cluster/*' >> .git/info/sparse-checkout
+echo 'redis-cluster' >> .git/info/sparse-checkout
 git remote add origin https://github.com/angleszhaixd/docker-compose.git
 git pull origin master
 
