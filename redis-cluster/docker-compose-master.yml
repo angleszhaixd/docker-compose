@@ -13,7 +13,7 @@ services:
       volumes:
         - ./data/master:${REDIS_DATA_DIR}
       env_file:
-        .env
+        _.env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
@@ -33,7 +33,7 @@ services:
       volumes:
         - ./data/sentinel:${REDIS_DATA_DIR}
       env_file:
-        .env
+        _.env
       depends_on:
         - master
       environment:
