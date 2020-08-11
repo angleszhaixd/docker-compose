@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+    slave:
+      build:
+        context: ./slave
+        dockerfile: Dockerfile
+#      image: ${IMAGETAG:-redis:latest}
+      image: redis-slave:latest
+      container_name: redis-slave
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./data/slave:${REDIS_DATA_DIR}
+      env_file:
+        .env
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:- 6379}
+        SLAVE_IP: 127.0.0.1
+        SLAVE_PORT: 6380
+    #  command: redis-server /var/redis/redis.conf
+
+    sentinel-S:
+      build:
+        context: ./sentinel
+        dockerfile: Dockerfile
+#      image: ${IMAGETAG:-redis:latest}
+      image: redis-sentinel:latest
+      container_name: redis-sentinel-S
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./data/sentinel:${REDIS_DATA_DIR}
+      env_file:
+        .env
+      depends_on:
+        - slave
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+        SENTINEL_PORT: 26380
+        SENTINEL_QUORUM: 2
+        SENTINEL_DOWN_AFTER: 5000
+        SENTINEL_FAILOVER_TIMEOUT: 6000
+    #  command: redis-server /var/redis/redis.conf --sentinel
+    
+    

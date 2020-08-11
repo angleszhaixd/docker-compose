@@ -1,0 +1,106 @@
+version: '3.8'
+services:
+    master:
+      image: ${IMAGETAG:-redis:latest}
+      container_name: redis-master
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./conf/master.conf:/var/redis/redis.conf
+        - ./data/master:/var/redis/data
+      env_file:
+        .env
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+    #  command: redis-server /var/redis/redis.conf
+      command: [
+          '--port "${REDIS_HOST_PORT}"',
+          '--requirepass "${REDIS_PWD}"',
+          '--masterauth "${REDIS_PWD}"',
+#          '--dir /var/redis/data',
+#          '--logfile /var/redis/data/redis.log',
+          '--appendonly yes',
+        ]
+        
+    slave-1:
+      image: ${IMAGETAG:-redis:latest}
+      container_name: redis-slave1
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./conf/slave.conf:/var/redis/redis.conf
+        - ./data/slave1:/var/redis/data
+      env_file:
+        .env
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+    #  command: redis-server /var/redis/redis.conf
+      command: [
+          '--port 6380',
+          '--slaveof "${REDIS_HOST_IP}" "${REDIS_HOST_PORT}"',
+          '--requirepass "${REDIS_PWD}"',
+          '--masterauth "${REDIS_PWD}"',
+#          '--dir /var/redis/data',
+#          '--logfile /var/redis/data/redis.log',
+          '--appendonly yes',
+        ]
+        
+    slave-2:
+      image: ${IMAGETAG:-redis:latest}
+      container_name: redis-slave2
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./conf/slave.conf:/var/redis/redis.conf
+        - ./data/slave2:/var/redis/data
+      env_file:
+        .env
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+    #  command: redis-server /var/redis/redis.conf
+      command: [
+          '--port 6381',
+          '--slaveof "${REDIS_HOST_IP}" "${REDIS_HOST_PORT}"',
+          '--requirepass "${REDIS_PWD}"',
+          '--masterauth "${REDIS_PWD}"',
+#          '--dir /var/redis/data',
+#          '--logfile /var/redis/data/redis.log',
+          '--appendonly yes',
+        ]
+    sentinel:
+    #  build: sentinel
+      image: ${IMAGETAG:-redis:latest}
+      container_name: redis-sentinel
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./conf/sentinel.template:/var/redis/sentinel.template
+        - ./data/sentinel:/var/redis/data
+      env_file:
+        .env
+      depends_on:
+        - master
+        - slave-1
+        - slave-2
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+        SENTINEL_QUORUM: ${SENTINEL_QUORUM:-2}
+        SENTINEL_DOWN_AFTER: ${SENTINEL_DOWN_AFTER:-5000}
+        SENTINEL_FAILOVER: ${SENTINEL_FAILOVER:-5100}
+        SENTINEL_DIR_PATH: ${SENTINEL_DIR_PATH:-/var/redis/data}
+    #  command: redis-server /var/redis/redis.conf --sentinel
+      command: bash -c "curl cmd.cat/envsubst.sh && envsubst < /var/redis/sentinel.template > /var/redis/sentinel.conf && cat /var/redis/sentinel.conf && exec redis-server /var/redis/sentinel.conf --sentinel"
+    
+    

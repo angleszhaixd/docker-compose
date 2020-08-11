@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+    master:
+      build:
+        context: .
+        dockerfile: Dockerfile
+#      image: ${IMAGETAG:-redis:latest}
+      image: redis-slave:latest
+      container_name: redis-slave
+      network_mode: host
+      restart: always
+      privileged: true
+      volumes:
+        - ./data:${REDIS_DATA_DIR}
+#      env_file:
+#        .env
+      environment:
+        REDIS_PWD: ${REDIS_PWD:-123456}
+        REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
+        REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
+        REDIS_DATA_DIR: ${REDIS_DATA_DIR:-/etc/redis/data/}
+        SLAVE_IP: ${SLAVE_IP:-127.0.0.1}
+        SLAVE_PORT: ${SLAVE_PORT:-6380}
+    #  command: redis-server /var/redis/redis.conf
+    
+    

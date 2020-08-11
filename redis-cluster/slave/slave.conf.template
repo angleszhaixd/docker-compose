@@ -1,0 +1,13 @@
+# https://raw.githubusercontent.com/antirez/redis/4.0/redis.conf
+
+#bind ${SLAVE_IP}
+port ${SLAVE_PORT}
+slaveof ${REDIS_HOST_IP} ${REDIS_HOST_PORT}
+dir ${REDIS_DATA_DIR}
+logfile ${REDIS_LOGFILE}
+requirepass ${REDIS_PWD}
+masterauth ${REDIS_PWD}
+masterauth ${REDIS_PWD}
+# 是否开启AOF，默认关闭（no）  
+appendonly ${REDIS_AOF} 
+

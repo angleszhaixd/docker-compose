@@ -1,0 +1,11 @@
+# https://raw.githubusercontent.com/antirez/redis/4.0/redis.conf
+
+bind ${REDIS_HOST_IP}
+port ${REDIS_HOST_PORT}
+dir ${REDIS_DATA_DIR}
+logfile ${REDIS_LOGFILE}
+databases ${REDIS_DATABASES}
+requirepass ${REDIS_PWD}
+masterauth ${REDIS_PWD}
+# 是否开启AOF，默认关闭（no）  
+appendonly ${REDIS_AOF} 
