@@ -13,7 +13,7 @@ services:
       volumes:
         - ./data/master:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
@@ -26,14 +26,14 @@ services:
         dockerfile: Dockerfile
 #      image: ${IMAGETAG:-redis:latest}
       image: redis-sentinel:latest
-      container_name: redis-sentinel-M
+      container_name: redis-sentine-M
       network_mode: host
       restart: always
       privileged: true
       volumes:
         - ./data/sentinel:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       depends_on:
         - master
       environment:

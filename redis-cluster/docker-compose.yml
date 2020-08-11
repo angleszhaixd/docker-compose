@@ -12,7 +12,7 @@ services:
       volumes:
         - ./data/master:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
@@ -30,7 +30,7 @@ services:
       volumes:
         - ./data/slave1:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
@@ -49,7 +49,7 @@ services:
       volumes:
         - ./data/slave2:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
@@ -69,7 +69,7 @@ services:
       volumes:
         - ./data/sentinel1:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       depends_on:
         - master
         - slave-1
@@ -95,7 +95,7 @@ services:
       volumes:
         - ./data/sentinel2:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       depends_on:
         - master
         - slave-1
@@ -121,7 +121,7 @@ services:
       volumes:
         - ./data/sentinel3:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       depends_on:
         - master
         - slave-1

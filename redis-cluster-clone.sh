@@ -21,7 +21,8 @@ git pull origin master
 
 # move docker-compose script files
 echo 'move docker-compose script files'
-mkdir -pv ../redis-cluster && mv -f ./redis-cluster/* ../redis-cluster/
+mkdir -pv ../redis-cluster && cp -rf ./redis-cluster/* ../redis-cluster/
+cp -rf ./redis-cluster/.* ../redis-cluster/
 cd ../redis-cluster
 rm -rf ../redis-tmp
 #alias proj="cd ./redis-cluster"

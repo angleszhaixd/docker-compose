@@ -13,7 +13,7 @@ services:
       volumes:
         - ./data/slave:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
@@ -35,14 +35,14 @@ services:
       volumes:
         - ./data/sentinel:${REDIS_DATA_DIR}
       env_file:
-        - redis.env
+        .env
       depends_on:
         - slave
       environment:
         REDIS_PWD: ${REDIS_PWD:-123456}
         REDIS_HOST_IP: ${REDIS_HOST_IP:-127.0.0.1}
         REDIS_HOST_PORT: ${REDIS_HOST_PORT:-6379}
-        SENTINEL_PORT: 26379
+        SENTINEL_PORT: 26380
         SENTINEL_QUORUM: 2
         SENTINEL_DOWN_AFTER: 5000
         SENTINEL_FAILOVER_TIMEOUT: 6000
