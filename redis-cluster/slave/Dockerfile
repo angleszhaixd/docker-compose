@@ -1,4 +1,4 @@
-FROM redis:6.0.6-alpine
+FROM redis:6.0.9-alpine
 
 ENV REDIS_DATA_DIR=/etc/redis/data/ \
 	REDIS_LOGFILE=/etc/redis/data/redis.log \

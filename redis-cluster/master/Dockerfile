@@ -1,4 +1,4 @@
-FROM redis:6.0.6-alpine
+FROM redis:6.0.9-alpine
 
 MAINTAINER zhaixd<xiaodong137038@163.com>
 
@@ -9,7 +9,7 @@ ENV REDIS_DATA_DIR=/etc/redis/data/ \
 	REDIS_HOST_IP=127.0.0.1 \
 	REDIS_HOST_PORT=6379 \
 	REDIS_DATABASES=16 \
-	REDIS_AOF=no
+	REDIS_AOF=yes
 
 RUN apk add --no-cache gettext
 #RUN mkdir -vp /etc/redis/data/ && touch /etc/redis/data/redis.log && chown -R redis:redis /etc/redis/

@@ -1,4 +1,4 @@
-FROM redis:6.0.6-alpine
+FROM redis:6.0.9-alpine
 MAINTAINER zhaixd<xiaodong137038@163.com>
 
 ENV REDIS_DATA_DIR=/etc/redis/data/ \

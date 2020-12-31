@@ -10,4 +10,5 @@ masterauth ${REDIS_PWD}
 masterauth ${REDIS_PWD}
 # 是否开启AOF，默认关闭（no）  
 appendonly ${REDIS_AOF} 
+appendfsync no
 
